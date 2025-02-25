@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchUserProfile } from "./lib/api";
+import { fetchUserProfile, fetchUserPlaylists } from "./lib/api";
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
@@ -8,10 +8,14 @@ const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&
 function App() {
     const [accessToken, setAccessToken] = useState(localStorage.getItem("spotify_access_token"));
     const [user, setUser] = useState(null);
+    const [playlists, setPlaylists] = useState([]);
 
     useEffect(() => {
         if (accessToken) {
             fetchUserProfile(accessToken).then(setUser);
+            fetchUserPlaylists(accessToken).then(data => {
+                if (data?.items) setPlaylists(data.items);
+            });
         }
     }, [accessToken]);
 
@@ -19,6 +23,7 @@ function App() {
         localStorage.removeItem("spotify_access_token");
         setAccessToken(null);
         setUser(null);
+        setPlaylists([]);
     }
 
     return (
@@ -39,6 +44,21 @@ function App() {
                         <p>Loading user info...</p>
                     )}
                     <button className="logout-btn" onClick={logout}>Logout</button>
+                </div>
+            )}
+
+            {playlists.length > 0 && (
+                <div className="playlists">
+                    <h2>Your Playlists</h2>
+                    <div className="playlist-grid">
+                        {playlists.map(playlist => (
+                            <div key={playlist.id} className="playlist-card">
+                                <img src={playlist.images[0]?.url} alt={playlist.name} />
+                                <h3>{playlist.name}</h3>
+                                <p>{playlist.tracks.total} tracks</p>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>
