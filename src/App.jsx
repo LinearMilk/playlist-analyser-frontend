@@ -14,6 +14,7 @@ function App() {
     const [tracks, setTracks] = useState([]);
     const [trackFeatures, setTrackFeatures] = useState(null);
     const chartRef = React.useRef(null);
+    console.log("Access Token:", accessToken);
 
     useEffect(() => {
         if (accessToken) {
