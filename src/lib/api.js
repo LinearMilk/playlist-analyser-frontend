@@ -46,7 +46,10 @@ export async function fetchPlaylistTracks(playlistId, accessToken) {
 export async function fetchTrackFeatures(trackIds, accessToken) {
     try {
         const response = await fetch(`https://api.spotify.com/v1/audio-features?ids=${trackIds.join(",")}`, {
-            headers: { Authorization: `Bearer ${accessToken}` }
+            headers: { 
+                Authorization: `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+            }
         });
 
         if (!response.ok) throw new Error("Failed to fetch track features");

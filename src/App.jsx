@@ -25,21 +25,28 @@ function App() {
     }, [accessToken]);
 
     async function handlePlaylistSelect(playlist) {
-        setSelectedPlaylist(playlist);
-        setTracks([]); 
-        setTrackFeatures(null); 
-
-        const trackData = await fetchPlaylistTracks(playlist.id, accessToken);
-        if (trackData?.items) {
-            setTracks(trackData.items);
-
-            const trackIds = trackData.items.map(item => item.track.id);
-            const featuresData = await fetchTrackFeatures(trackIds, accessToken);
-            if (featuresData?.audio_features) {
-                setTrackFeatures(featuresData.audio_features);
-            }
-        }
-    }
+      setSelectedPlaylist(playlist);
+      setTracks([]); 
+      setTrackFeatures(null); 
+  
+      const trackData = await fetchPlaylistTracks(playlist.id, accessToken);
+      if (trackData?.items) {
+          setTracks(trackData.items);
+  
+          const trackIds = trackData.items.map(item => item.track.id);
+          const featuresData = await fetchTrackFeatures(trackIds, accessToken);
+  
+          if (featuresData?.error?.status === 401) {
+              console.warn("Token expired, logging out...");
+              logout(); // Force re-login
+              return;
+          }
+  
+          if (featuresData?.audio_features) {
+              setTrackFeatures(featuresData.audio_features);
+          }
+      }
+  }
 
     function logout() {
         localStorage.removeItem("spotify_access_token");
