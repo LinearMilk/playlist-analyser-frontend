@@ -7,6 +7,10 @@ function PlaylistDetails({ playlist, accessToken }) {
     const [trackFeatures, setTrackFeatures] = useState(null);
 
     useEffect(() => {
+        if (!trackFeatures || trackFeatures.length === 0) {
+            console.warn("⚠️ Skipping chart rendering - No audio features available");
+            return;
+        }
         async function loadTracks() {
             setTracks([]);
             setTrackFeatures(null);
