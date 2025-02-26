@@ -15,18 +15,21 @@ export async function fetchUserProfile(accessToken) {
 
 export async function fetchUserPlaylists(accessToken) {
     try {
-        const response = await fetch("https://api.spotify.com/v1/me/playlists", {
+        const response = await fetch("/api/playlists", {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
 
-        if (!response.ok) throw new Error("Failed to fetch playlists");
+        if (!response.ok) {
+            throw new Error("Failed to fetch user playlists");
+        }
 
         return await response.json();
     } catch (error) {
-        console.error("Error fetching playlists:", error);
+        console.error("Error fetching user playlists:", error);
         return null;
     }
 }
+
 
 export async function fetchPlaylistTracks(playlistId, accessToken) {
     try {
