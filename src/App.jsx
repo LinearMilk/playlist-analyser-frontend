@@ -36,7 +36,7 @@ function App() {
                 <div className="profile">
                     {user ? (
                         <>
-                            <img className="avatar" src={user.images[0]?.url} alt="User avatar" />
+                            <img className="avatar" src={user?.images?.[0]?.url || "/default-avatar.png"} alt="User avatar" />
                             <h2>{user.display_name}</h2>
                             <p>@{user.id}</p>
                         </>
@@ -53,7 +53,7 @@ function App() {
                     <div className="playlist-grid">
                         {playlists.map(playlist => (
                             <div key={playlist.id} className="playlist-card">
-                                <img src={playlist.images[0]?.url} alt={playlist.name} />
+                                <img src={playlist?.images?.[0]?.url || "/default-playlist.png"} alt={playlist.name} />
                                 <h3>{playlist.name}</h3>
                                 <p>{playlist.tracks.total} tracks</p>
                             </div>
