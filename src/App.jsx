@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { fetchUserProfile, fetchUserPlaylists, fetchPlaylistTracks } from "./lib/api";
+import { fetchUserProfile, fetchUserPlaylists, fetchPlaylistTracks, fetchTrackFeatures } from "./lib/api";
+import Chart from "chart.js/auto";
 
 const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
 const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
@@ -11,6 +12,8 @@ function App() {
     const [playlists, setPlaylists] = useState([]);
     const [selectedPlaylist, setSelectedPlaylist] = useState(null);
     const [tracks, setTracks] = useState([]);
+    const [trackFeatures, setTrackFeatures] = useState(null);
+    const chartRef = React.useRef(null);
 
     useEffect(() => {
         if (accessToken) {
@@ -23,9 +26,19 @@ function App() {
 
     async function handlePlaylistSelect(playlist) {
         setSelectedPlaylist(playlist);
-        setTracks([]); // Reset track list
-        const data = await fetchPlaylistTracks(playlist.id, accessToken);
-        if (data?.items) setTracks(data.items);
+        setTracks([]); 
+        setTrackFeatures(null); 
+
+        const trackData = await fetchPlaylistTracks(playlist.id, accessToken);
+        if (trackData?.items) {
+            setTracks(trackData.items);
+
+            const trackIds = trackData.items.map(item => item.track.id);
+            const featuresData = await fetchTrackFeatures(trackIds, accessToken);
+            if (featuresData?.audio_features) {
+                setTrackFeatures(featuresData.audio_features);
+            }
+        }
     }
 
     function logout() {
@@ -35,7 +48,42 @@ function App() {
         setPlaylists([]);
         setSelectedPlaylist(null);
         setTracks([]);
+        setTrackFeatures(null);
     }
+
+    useEffect(() => {
+        if (!trackFeatures || trackFeatures.length === 0) return;
+
+        const ctx = chartRef.current.getContext("2d");
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: tracks.map(t => t.track.name),
+                datasets: [
+                    {
+                        label: "Danceability",
+                        data: trackFeatures.map(f => f.danceability),
+                        backgroundColor: "rgba(54, 162, 235, 0.6)"
+                    },
+                    {
+                        label: "Energy",
+                        data: trackFeatures.map(f => f.energy),
+                        backgroundColor: "rgba(255, 99, 132, 0.6)"
+                    },
+                    {
+                        label: "Popularity",
+                        data: tracks.map(t => t.track.popularity / 100),
+                        backgroundColor: "rgba(75, 192, 192, 0.6)"
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+    }, [trackFeatures]);
 
     return (
         <div className="container">
@@ -88,6 +136,12 @@ function App() {
                             </li>
                         ))}
                     </ul>
+
+                    {trackFeatures && (
+                        <div className="chart-container">
+                            <canvas ref={chartRef}></canvas>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
