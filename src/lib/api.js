@@ -1,3 +1,6 @@
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+
+
 export async function fetchUserProfile(accessToken) {
     try {
         const response = await fetch("https://api.spotify.com/v1/me", {
@@ -15,7 +18,7 @@ export async function fetchUserProfile(accessToken) {
 
 export async function fetchUserPlaylists(accessToken) {
     try {
-        const response = await fetch("/api/playlists", {
+        const response = await fetch(`${BACKEND_URL}/playlists`, {
             headers: { Authorization: `Bearer ${accessToken}` }
         });
 

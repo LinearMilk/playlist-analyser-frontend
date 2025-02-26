@@ -1,6 +1,10 @@
 {
     "rewrites": [
       { "source": "/callback", "destination": "/index.html" },
-      { "source": "/(.*)", "destination": "/index.html" }
+      { "source": "/(.*)", "destination": "/index.html" },
+      {
+        "source": "/api/:path*",
+        "destination": "https://playlist-analyser-backend-production.up.railway.app/:path*"
+      }
     ]
   }
